@@ -8,8 +8,8 @@ app.Use(async (context, next) =>
 {
     if (context.WebSockets.IsWebSocketRequest)
     {
+        LogHeaders(context.Request);
         using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        var state = webSocket.State;
         await Echo(webSocket);
     }
     else
@@ -19,5 +19,11 @@ app.Use(async (context, next) =>
 });
 
 app.Run();
+
+static void LogHeaders(HttpRequest request)
+{
+    using var sw = new StreamWriter("output.txt", append: true);
+    sw.WriteLine($"Request at {DateTime.Now}: Upgrade:'{request.Headers["Upgrade"]}', Connection:'{request.Headers["Connection"]}'");
+}
 
 static async Task Echo(WebSocket webSocket) => await Task.Delay(5000);
